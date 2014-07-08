@@ -1,0 +1,458 @@
+﻿<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+	    <title>Dependency Injection with Javascript</title>
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/simple.css" id="theme">
+
+		<!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/custom.css">
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+		    document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+
+		<style type="text/css">
+            @font-face {
+                font-family: "Love Ya Like A Sister";
+                src: url('fonts/love-ya-like-a-sister.woff');
+            }
+
+            .bbd-logo {
+                height: 100px;
+                width: 100px;
+                background-image: url('images/bbd.png');
+                background-repeat: no-repeat;
+                position: absolute;
+                top: 20px;
+                right: 20px;
+            }
+
+            div.reveal aside.controls {
+                right: 25px;
+                bottom: 15px;
+            }
+
+            div.reveal .fantsy {
+                color: #d5212c;
+                font-family: 'Love Ya Like A Sister', cursive;
+            }
+
+			div.reveal {
+				/*background: #B85C1E url(images/main-background.jpg) no-repeat top center;*/
+			}
+
+            p.main-title {
+                font-size: 300px;
+            }
+
+            div.reveal h1 {
+                font-size: 80px;
+                margin-bottom: 50px;
+            }
+
+            div.reveal h2 {
+                font-size: 45px;
+                margin-bottom: 40px;
+            }
+
+			div.reveal img {
+				border: 0;
+				box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+				background: rgba(0, 0, 0, 0);
+			}
+
+            div.reveal img.twitter,
+            div.reveal img.github {
+                top: 30px;
+                position: relative;
+                padding-right: 15px;
+            }
+
+			div.reveal pre,
+			div.reveal ul > li {
+				margin-bottom: 45px;
+			}
+            div.reveal ul {
+                list-style-type: none;
+                text-align: center;
+            }
+
+            div.reveal ul li b {
+                width: 200px;
+                display: inline-block;
+            }
+
+            div.reveal pre {
+                font-size: 0.6em;
+                font-weight: bold;
+            }
+            div.reveal li.fix-strike span:first-child {
+                position: relative;
+                left: 190px;
+            }
+            div.reveal li.fix-strike span:last-child {
+                position: relative;
+                left: -111px;
+            }
+
+            div.reveal li.fix-strike span:last-child span {
+                left:0px;
+            }
+            div.reveal pre code {
+                max-height: 600px;
+            }
+		</style>
+	</head>
+
+	<body>
+
+	    <div class="reveal">
+            <div class="bbd-logo"></div>
+	        <div class="slides">
+
+	            <section id="title">
+	                <h1>Dependency Injection with Javascript</h1>
+                    <br />
+                    <h1 class="fragment fantsy">An Illustrated Guide <br/> (in 10 minutes or less)</h1>
+	                <br />
+	                <h3>
+	                    by Mike Geyser
+	                </h3>
+                    <br />
+	                <h4>
+	                    Developer User Group
+	                </h4>
+	                <h4>
+                        08 July 2014
+	                </h4>
+	            </section>
+
+	            <section>
+	                <h1>Overview</h1>
+	                <ul>
+	                    <li>Introduction</li>
+	                    <li>Components of a hand rolled injection</li>
+                        <li>What makes it tick?</li>
+                        <li>How angular does it</li>
+	                </ul>
+	            </section>
+                
+	            <section>
+	                <section>
+	                    <h1>Dependency Injection</h1>
+	                    <ul>
+	                        <li class="fix-strike">
+	                            <span class="fragment fade-out" data-fragment-index="1">Easier to test/mock</span> 
+	                            <span class="fragment fade-in" data-fragment-index="1"><strike>Easier to test/mock</strike><span class="fantsy">lame..</span></span>
+	                        </li>
+	                        <li>Isolate behaviour</li>
+	                        <li>Configure at runtime</li>
+	                        <li>Defer object creation responsibility</li>
+	                    </ul>
+                        <br/>
+                        <h3 class="fragment fade-in fantsy" data-fragment-index="2">The rest are awesome!</h3>
+	                </section>
+                    
+	                <section>
+                        <h1>In Javascript? Why?</h1>
+                        
+	                    <ul>
+	                        <li>It's become a 'real' language</li>
+                            <li>Patterns solve problems</li>
+	                        <li>Rapidly growing adoption - Angular + RequireJs</li>
+	                    </ul>
+	                </section>
+                    
+	                <section>
+                        <h1 class="fantsy">Disclaimer:</h1>
+                        
+                        <h3 class="fantsy">The content of this talk is shamelessly ripped off of Angular.</h3>
+                        <br/>
+                        <h3 class="fantsy">No original thought was harmed in the making of this presentation.</h3>
+	                </section>
+	            </section>
+                
+	            <section>
+	                <section>
+	                    <h1>Angular style injection</h1>
+
+	                    <pre><code>
+
+    var Controller = function(Greeter) {
+
+        /*Greeter is 'constructor' injected*/
+        Greeter.greet()
+    };
+
+					    </code></pre>
+	                </section>
+                    
+                    <section>
+                        <h1>Container has three responsibilities</h1>
+
+                        <pre><code>
+    var Dependency = {
+
+        register: function(name, dependency){
+
+		},
+
+        resolve: function(name) {
+	        
+        },
+
+        inject: function(target){
+
+        }
+    };
+					    </code></pre>
+                    </section>
+
+                    <section>
+                        <h1>Registration</h1>
+
+                        <pre><code>
+    var Greeter = {
+        greet: function(){
+            Alert("Hello Developer User Group!");
+        }
+    };
+                            
+    Dependency.register("Greeter", Greeter);
+					    </code></pre>
+                        
+                        <h3 class="fantsy fragment">Inject by key, because JS has no 'interfaces'</h3>
+                    </section>
+                    
+                    <section>
+                        <h1>Registration</h1>
+
+                        <pre><code>
+    var Dependency = {
+        dependencies: {}, // Simple object hash
+        register: function(name, dependency){
+            this.dependencies[name] = dependency;
+        }
+    };
+					    </code></pre>
+                    </section>
+                    
+                    <section>
+                        <h1>Resolution</h1>
+
+                        <pre><code>
+    var greeter = Dependency.resolve("Greeter");
+    greeter.Greet();
+					    </code></pre>
+                    </section>
+                    
+                    <section>
+                        <h1>Resolution</h1>
+
+                        <pre><code>
+    var Dependency = {
+        resolve: function(name){
+            return this.dependencies[name];
+		}
+    };
+					    </code></pre>
+                        
+                        <h3 class="fantsy fragment">
+                            Easy.
+                            <br />
+                            But not what we're after..
+                        </h3>
+                        
+                    </section>
+                    
+                    <section>
+                        <h1>Constructor Injection</h1>
+                        <h3 class="fantsy">(Where the real money is)</h3>
+                            <pre><code>
+                                     
+    var Controller = function(Greeter) {
+        Greeter.greet()
+    };
+                                
+    Dependency.inject(Controller);
+
+					    </code></pre>
+                    </section>
+                    
+                    <section>
+                        <h1>Magic strings</h1>
+                        <ul>
+                            <li>We want to deal in objects, but resolution is by key.</li>
+                            <li>Simple string representation of the object.</li>
+                        </ul>
+
+                        <pre><code>
+    Controller.toString();
+
+    /*
+         "function (Greeter){
+            Greeter.greet();
+		 }"
+    */					    </code></pre>
+                    </section>
+                    
+	                <section>
+	                    <h1>Magic strings</h1>
+                        <h2 class="fantsy">
+                            Relax. 
+                            <br/> 
+                            Embrace it.
+                            <br/> 
+                            The feeling of discomfort will pass.
+                        </h2>
+	                </section>
+
+                    <section>
+                        <h1>Magic strings</h1>
+                        <h2 class="fantsy">
+                            The incantation:
+                        </h2>
+
+                        <pre><code>
+    var regex = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
+
+    var arguments = Controller.toString()
+                              .match(regex)[1]
+                              .split(',');
+
+                        </code></pre>
+                    </section>
+                    
+                    <section>
+                        <h1>Injection</h1>
+
+                        <pre><code>
+    var Dependency = {
+        inject: function(target){
+
+            var regex = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
+            var arguments = target.toString()
+                                  .match(regex)[1]
+                                  .split(',');
+            var self = this;
+            var dependencies = arguments.map(function(key){
+                return self.resolve(key);
+            });
+
+            target.apply(target, dependencies);
+        }
+    };
+                        </code></pre>
+                    </section>
+                    
+                    <section>
+                        <h1>The whole picture</h1>
+
+                        <pre><code>
+    var Dependency = {
+        dependencies: {},
+        register: function(name, dependency){
+            this.dependencies[name] = dependency;
+        },
+        resolve: function(name){
+            return this.dependencies[name];
+		},
+        inject: function(target){
+            var regex = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
+            var arguments = target.toString()
+                                  .match(regex)[1]
+                                  .split(',');
+            var self = this;
+            var dependencies = arguments.map(function(key){
+                return self.resolve(key);
+            });
+            target.apply(target, dependencies);
+        }
+    };
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <h1>How Angular wires it up</h1>
+
+                        <pre><code>
+    <script>
+        function Controller(Greeter) {
+            Greeter.greet();
+        }
+    </script>
+
+    <div ng-app ng-controller="Controller">
+        <!-- -->
+    </div>
+                        </code></pre>
+                        
+                       <h3 class="fantsy">Ng hides the injection behind Controller injection.</h3>
+                       <h3 class="fantsy fragment">(Much like ASP.NET MVC)</h3>
+                    </section>
+	            </section>
+                
+	            <section>
+	                <section>
+	                    <h1>Summary</h1>
+
+	                    <ul>
+	                        <li>Simple registration / resolution</li>
+	                        <li>Reflection and 'magic strings'</li>
+	                        <li>Spirit of the law (or pattern) vs. letter of the law</li>
+	                    </ul>
+
+	                    <br />
+	                    <br />
+	                    <br />
+	                    <h1>Questions?</h1>
+	                    <h2>
+	                        <img class="twitter" src="images/twitter.png" />@mikegeyser
+	                    </h2>
+	                </section>
+	            </section>
+	        </div>
+
+	    </div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+		    // Full list of configuration options available here:
+		    // https://github.com/hakimel/reveal.js#configuration
+		    Reveal.initialize({
+		        controls: true,
+		        progress: true,
+		        history: true,
+		        center: true,
+
+		        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+		        transition: Reveal.getQueryHash().transition || 'linear', // default/cube/page/concave/zoom/linear/fade/none
+
+		        // Optional libraries used to extend on reveal.js
+		        dependencies: [
+		            { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+		            { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+		            { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+		            { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+		            { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+		            { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+		        ]
+		    });
+
+		</script>
+
+	</body>
+</html>
